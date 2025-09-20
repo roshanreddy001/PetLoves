@@ -16,7 +16,6 @@ import { ShoppingCart as CartIcon, Sparkles } from 'lucide-react';
 import { useApp } from './context/AppContext';
 import OrdersPage from './components/OrdersPage';
 import { ErrorBoundary } from './components/ErrorBoundary';
-import UserInfo from './components/UserInfo';
 
 type Page = 'landing' | 'login' | 'signup' | 'home' | 'orders' | 'about' | 'medicare' | 'food' | 'accessories';
 type PageOrNull = Page | null;

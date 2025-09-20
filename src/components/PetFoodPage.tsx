@@ -5,7 +5,6 @@ import { Product } from '../types';
 import { useApp } from '../context/AppContext';
 
 const PetFoodPage: React.FC = () => {
-  const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedAnimal, setSelectedAnimal] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);

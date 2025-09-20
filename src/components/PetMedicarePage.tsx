@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MapPin, Phone, Star, Calendar, Clock, User, Heart, AlertCircle } from 'lucide-react';
+import { MapPin, Phone, Star,  Heart } from 'lucide-react';
 import { mockVetClinics } from '../data/mockData';
 import { VetClinic } from '../types';
 import { useUserActivities } from '../context/UserActivitiesContext';

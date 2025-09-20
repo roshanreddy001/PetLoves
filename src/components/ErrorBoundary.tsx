@@ -12,9 +12,11 @@ export class ErrorBoundary extends React.Component<{ children: React.ReactNode }
   static getDerivedStateFromError() {
     return { hasError: true };
   }
-  componentDidCatch(error: any, info: any) {
-    // Optionally log error
-    // console.error('ErrorBoundary caught:', error, info);
+  // Update the componentDidCatch method:
+  componentDidCatch(error: Error, info: React.ErrorInfo) {
+    // You can log these to an error reporting service
+    console.error('Error caught by boundary:', error, info);
+    this.setState({ hasError: true });
   }
   render() {
     if (this.state.hasError) {

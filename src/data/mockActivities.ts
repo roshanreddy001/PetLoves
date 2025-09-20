@@ -1,4 +1,3 @@
-import { Product, VetClinic, Pet } from '../types';
 
 export type ActivityType = 'purchase' | 'adoption' | 'appointment' | 'visit';
 
