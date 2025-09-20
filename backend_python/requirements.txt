@@ -1,0 +1,8 @@
+--only-binary :all:
+pydantic-core
+pydantic
+fastapi
+uvicorn
+motor
+python-dotenv
+python-multipart
