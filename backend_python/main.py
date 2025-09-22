@@ -67,6 +67,23 @@ app.include_router(visits.router, prefix="/api/visits", tags=["visits"])
 async def root():
     return {"message": "PetLove API Running!"}
 
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy", "message": "Server is running"}
+
+@app.get("/api/debug/routes")
+async def debug_routes():
+    """Debug endpoint to list all registered routes"""
+    routes = []
+    for route in app.routes:
+        if hasattr(route, 'methods') and hasattr(route, 'path'):
+            routes.append({
+                "path": route.path,
+                "methods": list(route.methods),
+                "name": getattr(route, 'name', 'unknown')
+            })
+    return {"routes": routes}
+
 @app.get("/api/database-info")
 async def get_database_info():
     """Get information about the database and collections"""
