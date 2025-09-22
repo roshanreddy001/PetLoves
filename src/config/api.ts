@@ -26,49 +26,49 @@ export const API_CONFIG = {
 export const API_ENDPOINTS = {
   // User endpoints
   USERS: {
-    LOGIN: '/users/login',
-    REGISTER: '/users',
-    PROFILE: '/users/profile',
+    LOGIN: '/api/users/login',
+    REGISTER: '/api/users',
+    PROFILE: '/api/users/profile',
   },
   
   // Order endpoints
   ORDERS: {
-    BASE: '/orders',
-    BY_USER: (userId: string) => `/orders/${userId}`,
-    CREATE: '/orders',
+    BASE: '/api/orders',
+    BY_USER: (userId: string) => `/api/orders/${userId}`,
+    CREATE: '/api/orders',
   },
   
   // Adoption endpoints
   ADOPTIONS: {
-    BASE: '/adoptions',
-    BY_USER: (userId: string) => `/adoptions/${userId}`,
-    CREATE: '/adoptions',
+    BASE: '/api/adoptions',
+    BY_USER: (userId: string) => `/api/adoptions/${userId}`,
+    CREATE: '/api/adoptions',
   },
   
   // Appointment endpoints
   APPOINTMENTS: {
-    BASE: '/appointments',
-    BY_USER: (userId: string) => `/appointments/${userId}`,
-    CREATE: '/appointments',
+    BASE: '/api/appointments',
+    BY_USER: (userId: string) => `/api/appointments/${userId}`,
+    CREATE: '/api/appointments',
   },
   
   // Visit endpoints
   VISITS: {
-    BASE: '/visits',
-    BY_USER: (userId: string) => `/visits/${userId}`,
-    CREATE: '/visits',
+    BASE: '/api/visits',
+    BY_USER: (userId: string) => `/api/visits/${userId}`,
+    CREATE: '/api/visits',
   },
   
   // Pet endpoints
   PETS: {
-    BASE: '/pets',
-    BY_ID: (petId: string) => `/pets/${petId}`,
+    BASE: '/api/pets',
+    BY_ID: (petId: string) => `/api/pets/${petId}`,
   },
   
   // Clinic endpoints
   CLINICS: {
-    BASE: '/clinics',
-    BY_ID: (clinicId: string) => `/clinics/${clinicId}`,
+    BASE: '/api/clinics',
+    BY_ID: (clinicId: string) => `/api/clinics/${clinicId}`,
   },
 } as const;
 

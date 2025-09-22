@@ -46,18 +46,12 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# CORS middleware
+# CORS middleware - Allow all origins for now to fix the issue
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://localhost:5173",
-        "https://petlover-5qxxu7vm4-roshanreddy001s-projects.vercel.app",
-        "https://petloves-nedk.onrender.com",
-        "https://*.vercel.app"
-    ],
-    allow_credentials=True,
-    allow_methods=["*"],
+    allow_origins=["*"],  # Allow all origins temporarily to fix CORS issue
+    allow_credentials=False,  # Must be False when allow_origins is ["*"]
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["*"],
 )
 
