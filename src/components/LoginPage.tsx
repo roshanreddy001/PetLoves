@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { userService } from '../services/apiService';
 
 interface LoginPageProps {
   onBack: () => void;
@@ -30,24 +31,22 @@ const LoginPage: React.FC<LoginPageProps> = ({ onBack, onShowSignup, onLoginSucc
     }
 
     try {
-      const API_BASE = import.meta.env.VITE_API_BASE || 'https://pet-love-backend.onrender.com/api';
-      const res = await fetch(`${API_BASE}/users/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-      if (res.ok) {
-        let data = await res.json();
-        // Ensure the user object has an 'id' field for AuthContext
-        if (!data.id && data._id) data.id = data._id;
-        localStorage.setItem('petlove_user', JSON.stringify(data));
-        setUser(data);
+      const result = await userService.login({ email, password });
+      
+      if (result.success && result.data) {
+        // Convert ApiUser to User format expected by AuthContext
+        const userData = {
+          ...result.data,
+          password: '', // Don't store password
+          createdAt: new Date(), // Set current date as fallback
+        };
+        localStorage.setItem('petlove_user', JSON.stringify(userData));
+        setUser(userData);
         setIsAuthenticated(true);
         setLoading(false);
         if (onLoginSuccess) onLoginSuccess();
       } else {
-        const data = await res.json();
-        setError(data.error || 'Login failed');
+        setError(result.error || 'Login failed');
         setLoading(false);
       }
     } catch (err) {

@@ -3,8 +3,7 @@ import { mockProducts } from '../data/mockData';
 import ActivityErrorModal from '../components/ActivityErrorModal';
 import { UserActivity } from '../data/mockActivities';
 import { useAuth } from './AuthContext';
-
-const API_BASE = import.meta.env.VITE_API_BASE || 'https://pet-love-backend.onrender.com/api';
+import { API_ENDPOINTS, api } from '../config/api';
 
 interface UserActivitiesContextType {
   activities: UserActivity[];
@@ -136,16 +135,16 @@ export const UserActivitiesProvider: React.FC<{ children: ReactNode }> = ({ chil
       setLoading(true);
       setError(null);
       try {
-        const ordersUrl = `${API_BASE}/orders/${user.id}`;
-        const adoptionsUrl = `${API_BASE}/adoptions/${user.id}`;
-        const appointmentsUrl = `${API_BASE}/appointments/${user.id}`;
-        const visitsUrl = `${API_BASE}/visits/${user.id}`;
+        const ordersUrl = API_ENDPOINTS.ORDERS.BY_USER(user.id);
+        const adoptionsUrl = API_ENDPOINTS.ADOPTIONS.BY_USER(user.id);
+        const appointmentsUrl = API_ENDPOINTS.APPOINTMENTS.BY_USER(user.id);
+        const visitsUrl = API_ENDPOINTS.VISITS.BY_USER(user.id);
         console.log('[UserActivitiesContext] Fetching:', ordersUrl, adoptionsUrl, appointmentsUrl, visitsUrl);
         const [ordersRes, adoptionsRes, appointmentsRes, visitsRes] = await Promise.all([
-          fetch(ordersUrl),
-          fetch(adoptionsUrl),
-          fetch(appointmentsUrl),
-          fetch(visitsUrl)
+          api.get(ordersUrl),
+          api.get(adoptionsUrl),
+          api.get(appointmentsUrl),
+          api.get(visitsUrl)
         ]);
         if (!ordersRes.ok || !adoptionsRes.ok || !appointmentsRes.ok || !visitsRes.ok) {
           throw new Error('One or more activity fetches failed');
@@ -182,7 +181,7 @@ export const UserActivitiesProvider: React.FC<{ children: ReactNode }> = ({ chil
     let endpoint = '';
     let body: any = {};
     if (activity.type === 'purchase') {
-      endpoint = `${API_BASE}/orders`;
+      endpoint = API_ENDPOINTS.ORDERS.CREATE;
       body = {
         userId: user.id,
         items: activity.details.items.map((item: any) => ({
@@ -197,7 +196,7 @@ export const UserActivitiesProvider: React.FC<{ children: ReactNode }> = ({ chil
         date: activity.date
       };
     } else if (activity.type === 'visit') {
-      endpoint = `${API_BASE}/visits`;
+      endpoint = API_ENDPOINTS.VISITS.CREATE;
       body = {
         userId: user.id,
         petId: activity.details.pet?.id,
@@ -209,7 +208,7 @@ export const UserActivitiesProvider: React.FC<{ children: ReactNode }> = ({ chil
         date: activity.date ? new Date(activity.date).toISOString() : undefined
       };
     } else if (activity.type === 'adoption') {
-      endpoint = `${API_BASE}/adoptions`;
+      endpoint = API_ENDPOINTS.ADOPTIONS.CREATE;
       body = {
         userId: user.id,
         petId: activity.details.pet?.id,
@@ -226,7 +225,7 @@ export const UserActivitiesProvider: React.FC<{ children: ReactNode }> = ({ chil
         date: activity.date
       };
     } else if (activity.type === 'appointment') {
-      endpoint = `${API_BASE}/appointments`;
+      endpoint = API_ENDPOINTS.APPOINTMENTS.CREATE;
       body = {
         userId: user.id,
         clinicId: activity.details.clinic?.id,
@@ -242,11 +241,7 @@ export const UserActivitiesProvider: React.FC<{ children: ReactNode }> = ({ chil
       };
     }
     try {
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      });
+      const response = await api.post(endpoint, body);
       if (!response.ok) {
         if (response.status === 409) {
           const errorData = await response.json();

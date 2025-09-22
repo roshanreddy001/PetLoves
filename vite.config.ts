@@ -16,7 +16,12 @@ export default defineConfig({
       allow: [path.resolve(__dirname, '..')],
     },
     proxy: {
-      '/api': 'http://localhost:5000',
+      '/api': {
+        target: 'https://petloves-nedk.onrender.com',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
     },
   },
   optimizeDeps: {

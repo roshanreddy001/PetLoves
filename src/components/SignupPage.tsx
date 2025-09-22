@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react';
+import { userService } from '../services/apiService';
 
 interface SignupPageProps {
   onBack: () => void;
@@ -44,21 +45,14 @@ const SignupPage: React.FC<SignupPageProps> = ({ onBack, onShowLogin }) => {
     }
 
     try {
-      const API_BASE = import.meta.env.VITE_API_BASE || 'https://pet-love-backend.onrender.com/api';
-      
-      // Create abort controller for timeout
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
-      
-      const res = await fetch(`${API_BASE}/users`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, phone, password }),
-        signal: controller.signal,
+      const result = await userService.register({
+        name,
+        email,
+        phone,
+        password
       });
       
-      clearTimeout(timeoutId);
-      if (res.ok) {
+      if (result.success) {
         setLoading(false);
         setSuccess(true);
         setTimeout(() => {
@@ -66,11 +60,10 @@ const SignupPage: React.FC<SignupPageProps> = ({ onBack, onShowLogin }) => {
           onShowLogin();
         }, 1800);
       } else {
-        if (res.status === 409) {
+        if (result.status === 409) {
           setError('Email already registered');
         } else {
-          const data = await res.json();
-          setError(data.error || 'Signup failed');
+          setError(result.error || 'Signup failed');
         }
         setLoading(false);
       }

@@ -14,9 +14,27 @@ load_dotenv()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
-    app.mongodb_client = AsyncIOMotorClient(os.getenv("MONGODB_URI"))
+    mongodb_uri = os.getenv("MONGODB_URI")
+    print(f"Connecting to MongoDB with URI: {mongodb_uri[:50]}...")
+    
+    # Add SSL and timeout configurations
+    app.mongodb_client = AsyncIOMotorClient(
+        mongodb_uri,
+        serverSelectionTimeoutMS=5000,
+        connectTimeoutMS=10000,
+        socketTimeoutMS=10000,
+        tls=True,
+        tlsAllowInvalidCertificates=False
+    )
+    
+    # Test the connection
+    try:
+        await app.mongodb_client.admin.command('ping')
+        print("✅ Connected to MongoDB successfully!")
+    except Exception as e:
+        print(f"❌ Failed to connect to MongoDB: {e}")
+        
     app.mongodb = app.mongodb_client.petlove
-    print("Connected to MongoDB!")
     yield
     # Shutdown
     app.mongodb_client.close()
@@ -35,6 +53,7 @@ app.add_middleware(
         "http://localhost:3000",
         "http://localhost:5173",
         "https://petlover-5qxxu7vm4-roshanreddy001s-projects.vercel.app",
+        "https://petloves-nedk.onrender.com",
         "https://*.vercel.app"
     ],
     allow_credentials=True,
@@ -53,6 +72,35 @@ app.include_router(visits.router, prefix="/api/visits", tags=["visits"])
 @app.get("/api")
 async def root():
     return {"message": "PetLove API Running!"}
+
+@app.get("/api/database-info")
+async def get_database_info():
+    """Get information about the database and collections"""
+    try:
+        # Get database stats
+        db = app.mongodb
+        
+        # List all collections
+        collections = await db.list_collection_names()
+        
+        # Get document counts for each collection
+        collection_stats = {}
+        for collection_name in collections:
+            count = await db[collection_name].count_documents({})
+            collection_stats[collection_name] = count
+        
+        return {
+            "database_name": "petlove",
+            "mongodb_uri_connected": True,
+            "collections": collections,
+            "document_counts": collection_stats,
+            "total_collections": len(collections)
+        }
+    except Exception as e:
+        return {
+            "error": str(e),
+            "mongodb_uri_connected": False
+        }
 
 # Setup static file serving for production
 setup_static_files(app)
