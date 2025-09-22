@@ -84,15 +84,35 @@ export const userService = {
 
   async register(userData: RegisterData): Promise<ApiResponse<ApiUser>> {
     try {
+      // Try the primary register endpoint first
       const response = await api.post(API_ENDPOINTS.USERS.REGISTER, userData, {
         timeout: 10000,
       });
+      
+      // If we get a 405 Method Not Allowed, try the alternative endpoint
+      if (response.status === 405) {
+        console.log('Primary register endpoint failed with 405, trying alternative...');
+        const altResponse = await api.post(API_ENDPOINTS.USERS.REGISTER_ALT, userData, {
+          timeout: 10000,
+        });
+        return await handleApiResponse<ApiUser>(altResponse);
+      }
+      
       return await handleApiResponse<ApiUser>(response);
     } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Network error occurred',
-      };
+      // If the primary endpoint fails, try the alternative
+      try {
+        console.log('Primary register endpoint failed, trying alternative...');
+        const altResponse = await api.post(API_ENDPOINTS.USERS.REGISTER_ALT, userData, {
+          timeout: 10000,
+        });
+        return await handleApiResponse<ApiUser>(altResponse);
+      } catch (altError) {
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : 'Network error occurred',
+        };
+      }
     }
   },
 

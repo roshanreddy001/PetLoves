@@ -31,6 +31,24 @@ async def register_user(user: UserCreate, request: Request):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+@router.post("/register", response_model=User, status_code=201)
+async def register_user_alt(user: UserCreate, request: Request):
+    """Register new user (alternative endpoint)"""
+    try:
+        # Check for duplicate email
+        existing_user = await request.app.mongodb["users"].find_one({"email": user.email})
+        if existing_user:
+            raise HTTPException(status_code=409, detail="Email already registered")
+        
+        user_dict = user.dict()
+        result = await request.app.mongodb["users"].insert_one(user_dict)
+        created_user = await request.app.mongodb["users"].find_one({"_id": result.inserted_id})
+        return created_user
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
 @router.post("/login", response_model=UserResponse)
 async def login_user(login_data: UserLogin, request: Request):
     """User login"""

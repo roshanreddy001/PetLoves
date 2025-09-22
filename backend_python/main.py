@@ -63,14 +63,6 @@ app.include_router(adoptions.router, prefix="/api/adoptions", tags=["adoptions"]
 app.include_router(appointments.router, prefix="/api/appointments", tags=["appointments"])
 app.include_router(visits.router, prefix="/api/visits", tags=["visits"])
 
-# Include routers without /api prefix (fallback for deployment issues)
-app.include_router(users.router, prefix="/users", tags=["users-fallback"])
-app.include_router(pets.router, prefix="/pets", tags=["pets-fallback"])
-app.include_router(orders.router, prefix="/orders", tags=["orders-fallback"])
-app.include_router(adoptions.router, prefix="/adoptions", tags=["adoptions-fallback"])
-app.include_router(appointments.router, prefix="/appointments", tags=["appointments-fallback"])
-app.include_router(visits.router, prefix="/visits", tags=["visits-fallback"])
-
 @app.get("/api")
 async def root():
     return {"message": "PetLove API Running!"}

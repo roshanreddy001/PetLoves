@@ -28,6 +28,7 @@ export const API_ENDPOINTS = {
   USERS: {
     LOGIN: '/api/users/login',
     REGISTER: '/api/users',
+    REGISTER_ALT: '/api/users/register',
     PROFILE: '/api/users/profile',
   },
   
