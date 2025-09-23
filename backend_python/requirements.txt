@@ -6,3 +6,4 @@ uvicorn
 motor
 python-dotenv
 python-multipart
+bcrypt
