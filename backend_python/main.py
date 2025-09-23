@@ -1,8 +1,11 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 from contextlib import asynccontextmanager
 import os
+import time
+import json
+from datetime import datetime
 from dotenv import load_dotenv
 
 from routers import users, pets, orders, adoptions, appointments, visits
@@ -10,6 +13,86 @@ from static_server import setup_static_files
 
 # Load environment variables
 load_dotenv()
+
+# Comprehensive debugging middleware
+async def debug_middleware(request: Request, call_next):
+    # Only debug specific endpoints
+    debug_paths = ["/api/users/login", "/api/users/register", "/api/users/"]
+    
+    if not any(request.url.path.startswith(path) for path in debug_paths):
+        return await call_next(request)
+    
+    start_time = time.time()
+    
+    # Log request details
+    print("\n🚨 DETAILED REQUEST DEBUG:")
+    print(f"⏰ Request Time: {datetime.now().isoformat()}")
+    print(f"🔧 Method: {request.method}")
+    print(f"📍 Full URL: {request.url}")
+    print(f"🖥️ Client IP: {request.client.host if request.client else 'Unknown'}")
+    
+    # Headers analysis
+    print("\n📋 REQUEST HEADERS:")
+    for key, value in request.headers.items():
+        print(f"   {key}: {value}")
+    
+    # Query parameters
+    if request.query_params:
+        print("\n🔍 QUERY PARAMETERS:")
+        for key, value in request.query_params.items():
+            print(f"   {key}: {value}")
+    
+    # Body analysis
+    print("\n📦 REQUEST BODY:")
+    try:
+        # Read the body
+        body = await request.body()
+        print(f"   Raw Body Length: {len(body)} bytes")
+        
+        if body:
+            try:
+                # Try to parse as JSON
+                body_json = json.loads(body.decode('utf-8'))
+                print(f"   Body Type: JSON")
+                print(f"   Body Keys: {list(body_json.keys()) if isinstance(body_json, dict) else 'Not a dict'}")
+                print(f"   Body Content: {body_json}")
+            except json.JSONDecodeError:
+                print(f"   Body Type: Raw bytes")
+                print(f"   Body Content: {body.decode('utf-8', errors='replace')}")
+        else:
+            print("   Body: Empty")
+    except Exception as e:
+        print(f"   Body Read Error: {str(e)}")
+    
+    # Process the request
+    try:
+        response = await call_next(request)
+        
+        # Calculate response time
+        end_time = time.time()
+        response_time = (end_time - start_time) * 1000  # Convert to milliseconds
+        
+        print("\n📤 RESPONSE DEBUG:")
+        print(f"   Status Code: {response.status_code}")
+        print(f"   Response Time: {response_time:.2f}ms")
+        print(f"   Response Headers: {dict(response.headers)}")
+        
+        # Try to read response body for logging (this is tricky with FastAPI)
+        print("=====================================\n")
+        
+        return response
+        
+    except Exception as e:
+        end_time = time.time()
+        response_time = (end_time - start_time) * 1000
+        
+        print("\n❌ REQUEST FAILED:")
+        print(f"   Error: {str(e)}")
+        print(f"   Error Type: {type(e).__name__}")
+        print(f"   Response Time: {response_time:.2f}ms")
+        print("=====================================\n")
+        
+        raise e
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -45,6 +128,11 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan
 )
+
+# Add debugging middleware FIRST (before CORS)
+@app.middleware("http")
+async def add_debug_middleware(request: Request, call_next):
+    return await debug_middleware(request, call_next)
 
 # CORS middleware - Allow all origins for now to fix the issue
 app.add_middleware(
@@ -112,6 +200,32 @@ async def get_database_info():
             "error": str(e),
             "mongodb_uri_connected": False
         }
+
+@app.post("/api/debug/test-login")
+async def test_login_endpoint(request: Request):
+    """Test endpoint to simulate login debugging"""
+    body = await request.body()
+    return {
+        "message": "Debug test endpoint reached",
+        "method": request.method,
+        "headers": dict(request.headers),
+        "body_length": len(body),
+        "body_content": body.decode('utf-8') if body else None,
+        "url": str(request.url)
+    }
+
+@app.post("/api/debug/test-register")
+async def test_register_endpoint(request: Request):
+    """Test endpoint to simulate register debugging"""
+    body = await request.body()
+    return {
+        "message": "Debug test register endpoint reached",
+        "method": request.method,
+        "headers": dict(request.headers),
+        "body_length": len(body),
+        "body_content": body.decode('utf-8') if body else None,
+        "url": str(request.url)
+    }
 
 # Setup static file serving for production
 setup_static_files(app)
