@@ -48,6 +48,40 @@ const OrdersPage: React.FC = () => {
                       <div className="text-red-500">Malformed purchase order data</div>
                     )}
                     <div className="flex justify-end font-bold text-orange-700 mt-2">Total: ₹{activity.details && activity.details.total ? activity.details.total.toFixed(2) : '0.00'}</div>
+                    
+                    {/* Payment Information */}
+                    {activity.details && activity.details.paymentInfo && (
+                      <div className="mt-3 pt-3 border-t border-gray-200">
+                        <div className="text-xs text-gray-500 mb-2">Payment Details:</div>
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                          {activity.details.paymentInfo.name && (
+                            <div>
+                              <span className="text-gray-500">Name:</span> {activity.details.paymentInfo.name}
+                            </div>
+                          )}
+                          {activity.details.paymentInfo.email && (
+                            <div>
+                              <span className="text-gray-500">Email:</span> {activity.details.paymentInfo.email}
+                            </div>
+                          )}
+                          {activity.details.paymentInfo.cardNumber && (
+                            <div>
+                              <span className="text-gray-500">Card:</span> {activity.details.paymentInfo.cardNumber}
+                            </div>
+                          )}
+                          {activity.details.paymentInfo.transactionId && (
+                            <div>
+                              <span className="text-gray-500">Transaction ID:</span> {activity.details.paymentInfo.transactionId}
+                            </div>
+                          )}
+                        </div>
+                        {activity.details.paymentInfo.address && (
+                          <div className="mt-2 text-xs">
+                            <span className="text-gray-500">Delivery Address:</span> {activity.details.paymentInfo.address}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
                 {activity.type === 'adoption' && (

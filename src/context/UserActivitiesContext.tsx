@@ -63,6 +63,7 @@ export const UserActivitiesProvider: React.FC<{ children: ReactNode }> = ({ chil
             })
           : [],
           total: item.total,
+          paymentInfo: item.paymentInfo || null,
         }
       };
     }

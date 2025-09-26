@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { X, Plus, Minus, CreditCard, Trash2, ShoppingBag } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useUserActivities } from '../context/UserActivitiesContext';
+import { useAuth } from '../context/AuthContext';
 import { UserActivity } from '../data/mockActivities';
+import { activityService } from '../services/apiService';
 
 interface ShoppingCartProps {
   isOpen: boolean;
@@ -12,6 +14,7 @@ interface ShoppingCartProps {
 const ShoppingCart: React.FC<ShoppingCartProps> = ({ isOpen, onClose }) => {
   const { addActivity } = useUserActivities();
   const { cart, updateQuantity, removeFromCart, getTotalPrice, clearCart } = useApp();
+  const { user } = useAuth();
   const [showPayment, setShowPayment] = useState(false);
   const [paymentData, setPaymentData] = useState({
     cardNumber: '',
@@ -22,29 +25,91 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({ isOpen, onClose }) => {
     address: '',
   });
   const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
 
-  const handlePayment = (e: React.FormEvent) => {
+  const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
-    setPaymentSuccess(true);
-    // Add new purchase activity
-    const orderId = Date.now().toString();
-    const dateStr = new Date().toISOString().split('T')[0];
-    addActivity({
-      id: orderId,
-      type: 'purchase',
-      date: dateStr,
-      status: 'delivered',
-      details: {
-        items: cart.map(item => ({ product: item.product, quantity: item.quantity })),
-        total: getTotalPrice()
+    
+    if (!user) {
+      setPaymentError('Please log in to complete your purchase');
+      return;
+    }
+
+    setIsProcessing(true);
+    setPaymentError(null);
+
+    try {
+      // Generate a transaction ID for the payment
+      const transactionId = `txn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      // Prepare order data for API
+      const orderData = {
+        userId: user.id,
+        items: cart.map(item => ({
+          productId: item.product.id,
+          name: item.product.name,
+          price: item.product.price,
+          quantity: item.quantity,
+          image: item.product.image,
+          type: item.product.category || 'product'
+        })),
+        total: getTotalPrice(),
+        status: 'confirmed',
+        paymentInfo: {
+          cardNumber: `****-****-****-${paymentData.cardNumber.slice(-4)}`, // Mask card number for security
+          name: paymentData.name,
+          email: paymentData.email,
+          address: paymentData.address,
+          paymentMethod: 'card',
+          transactionId: transactionId
+        }
+      };
+
+      // Create order in backend
+      const response = await activityService.createOrder(orderData);
+      
+      if (response.success) {
+        setPaymentSuccess(true);
+        
+        // Also add to local activities for immediate UI update
+        const dateStr = new Date().toISOString().split('T')[0];
+        addActivity({
+          id: response.data._id,
+          type: 'purchase',
+          date: dateStr,
+          status: 'confirmed',
+          details: {
+            items: cart.map(item => ({ product: item.product, quantity: item.quantity })),
+            total: getTotalPrice()
+          }
+        } as UserActivity);
+
+        // Clear cart and close modal after success
+        setTimeout(() => {
+          clearCart();
+          setPaymentSuccess(false);
+          setShowPayment(false);
+          onClose();
+          // Reset payment data
+          setPaymentData({
+            cardNumber: '',
+            expiryDate: '',
+            cvv: '',
+            name: '',
+            email: '',
+            address: '',
+          });
+        }, 3000);
+      } else {
+        throw new Error(response.error || 'Failed to process payment');
       }
-    } as UserActivity);
-    setTimeout(() => {
-      clearCart();
-      setPaymentSuccess(false);
-      setShowPayment(false);
-      onClose();
-    }, 3000);
+    } catch (error) {
+      console.error('Payment processing error:', error);
+      setPaymentError(error instanceof Error ? error.message : 'Payment processing failed. Please try again.');
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -161,6 +226,12 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({ isOpen, onClose }) => {
                   </div>
                 </div>
 
+                {paymentError && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
+                    <p className="text-red-700 text-sm">{paymentError}</p>
+                  </div>
+                )}
+
                 <div className="border-t pt-3 sm:pt-4 mt-4 sm:mt-6">
                   <div className="flex justify-between items-center mb-3 sm:mb-4">
                     <span className="text-base sm:text-lg font-semibold">Total:</span>
@@ -171,16 +242,28 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({ isOpen, onClose }) => {
                 <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
                   <button
                     type="button"
-                    onClick={() => setShowPayment(false)}
-                    className="flex-1 border border-gray-300 text-gray-700 py-2 sm:py-3 px-3 sm:px-4 rounded-lg sm:rounded-xl font-semibold hover:bg-gray-50 transition-colors text-sm sm:text-base"
+                    onClick={() => {
+                      setShowPayment(false);
+                      setPaymentError(null);
+                    }}
+                    disabled={isProcessing}
+                    className="flex-1 border border-gray-300 text-gray-700 py-2 sm:py-3 px-3 sm:px-4 rounded-lg sm:rounded-xl font-semibold hover:bg-gray-50 transition-colors text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Back to Cart
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 bg-gradient-to-r from-orange-500 to-red-500 text-white py-2 sm:py-3 px-3 sm:px-4 rounded-lg sm:rounded-xl font-semibold hover:from-orange-600 hover:to-red-600 transition-all duration-300 text-sm sm:text-base"
+                    disabled={isProcessing}
+                    className="flex-1 bg-gradient-to-r from-orange-500 to-red-500 text-white py-2 sm:py-3 px-3 sm:px-4 rounded-lg sm:rounded-xl font-semibold hover:from-orange-600 hover:to-red-600 transition-all duration-300 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                   >
-                    Pay Now
+                    {isProcessing ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Processing...
+                      </>
+                    ) : (
+                      'Pay Now'
+                    )}
                   </button>
                 </div>
               </form>
