@@ -27,7 +27,7 @@ async def debug_emails(request: Request):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/", response_model=User, status_code=201)
+@router.post("/", status_code=201)
 async def register_user(user: UserCreate, request: Request):
     """Register new user"""
     try:
@@ -40,7 +40,7 @@ async def register_user(user: UserCreate, request: Request):
         if existing_user:
             print(f"❌ Email already exists: {normalized_email}")
             print(f"📧 Existing user email: {existing_user.get('email', 'N/A')}")
-            raise HTTPException(status_code=409, detail="This email is already registered. Please use a different email or try logging in.")
+            raise HTTPException(status_code=409, detail="Email already registered")
         
         # Hash the password
         print("🔑 Hashing password...")
@@ -55,14 +55,22 @@ async def register_user(user: UserCreate, request: Request):
         created_user = await request.app.mongodb["users"].find_one({"_id": result.inserted_id})
         
         print(f"✅ User registered successfully: {normalized_email}")
-        return created_user
+        
+        # Return response similar to Express.js format
+        return {
+            "id": str(created_user["_id"]),
+            "name": created_user["name"],
+            "email": created_user["email"],
+            "phone": created_user["phone"],
+            "message": "Account created successfully"
+        }
     except HTTPException:
         raise
     except Exception as e:
         print(f"💥 Registration error: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.post("/register", response_model=User, status_code=201)
+@router.post("/register", status_code=201)
 async def register_user_alt(user: UserCreate, request: Request):
     """Register new user (alternative endpoint)"""
     try:
@@ -75,7 +83,7 @@ async def register_user_alt(user: UserCreate, request: Request):
         if existing_user:
             print(f"❌ Email already exists: {normalized_email}")
             print(f"📧 Existing user email: {existing_user.get('email', 'N/A')}")
-            raise HTTPException(status_code=409, detail="This email is already registered. Please use a different email or try logging in.")
+            raise HTTPException(status_code=409, detail="Email already registered")
         
         # Hash the password
         print("🔑 Hashing password...")
@@ -90,7 +98,15 @@ async def register_user_alt(user: UserCreate, request: Request):
         created_user = await request.app.mongodb["users"].find_one({"_id": result.inserted_id})
         
         print(f"✅ User registered successfully: {normalized_email}")
-        return created_user
+        
+        # Return response similar to Express.js format
+        return {
+            "id": str(created_user["_id"]),
+            "name": created_user["name"],
+            "email": created_user["email"],
+            "phone": created_user["phone"],
+            "message": "Account created successfully"
+        }
     except HTTPException:
         raise
     except Exception as e:

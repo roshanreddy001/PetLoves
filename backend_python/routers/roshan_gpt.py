@@ -97,58 +97,58 @@ class RoshanGPTService:
             r'animal (care|health|behavior|training|nutrition)'
         ]
         
-        # Pet care responses
-        self.pet_responses = [
-            {
-                "response": "🐾 That's a great question about pet care! For the best advice tailored to your pet's specific needs, I recommend consulting with a qualified veterinarian. They can provide personalized guidance based on your pet's breed, age, health status, and individual requirements.",
-                "type": "general_advice"
-            },
-            {
-                "response": "🥗 Pet nutrition is crucial for your furry friend's health! Choose high-quality food appropriate for your pet's age, size, and activity level. Always transition to new foods gradually over 7-10 days, and consult your veterinarian before making significant dietary changes.",
-                "type": "nutrition"
-            },
-            {
-                "response": "🏃‍♂️ Regular exercise is essential for your pet's physical and mental well-being! Dogs typically need 30 minutes to 2 hours of activity daily depending on their breed and age, while cats benefit from 10-15 minutes of interactive play sessions multiple times a day.",
-                "type": "exercise"
-            },
-            {
-                "response": "✂️ Pet grooming is vital for health and hygiene! Regular brushing prevents matting and reduces shedding, nail trimming prevents overgrowth and injury, and dental care prevents periodontal disease. Establish a routine early to make grooming a positive experience.",
-                "type": "grooming"
-            },
-            {
-                "response": "🏥 If you notice any changes in your pet's behavior, appetite, energy levels, or bathroom habits, it's important to schedule a veterinary visit. Early detection and treatment of health issues can prevent more serious problems and ensure your pet's well-being.",
-                "type": "health_monitoring"
-            },
-            {
-                "response": "🎓 Pet training requires patience, consistency, and positive reinforcement! Reward good behavior with treats, praise, or playtime. Keep training sessions short (5-10 minutes) and frequent. Remember, every pet learns at their own pace.",
-                "type": "training"
-            },
-            {
-                "response": "🏠 Creating a safe environment for your pet includes pet-proofing your home, providing comfortable sleeping areas, ensuring access to fresh water, and maintaining appropriate temperature. Remove toxic plants, secure hazardous items, and create designated spaces for eating and resting.",
-                "type": "environment"
-            },
-            {
-                "response": "💉 Vaccinations and regular check-ups are fundamental for preventing diseases and maintaining your pet's health. Follow your veterinarian's recommended vaccination schedule, and don't skip annual or bi-annual wellness exams even if your pet seems healthy.",
-                "type": "preventive_care"
-            },
-            {
-                "response": "🧸 Mental stimulation is just as important as physical exercise! Provide puzzle toys, rotate toys regularly, teach new tricks, and engage in interactive play. Mental enrichment prevents boredom-related behavioral issues and keeps your pet's mind sharp.",
-                "type": "mental_stimulation"
-            },
-            {
-                "response": "👥 Proper socialization helps your pet become well-adjusted and confident. Expose them to different people, animals, environments, and experiences in a controlled, positive manner. Start early, but remember that socialization is a lifelong process.",
-                "type": "socialization"
-            }
-        ]
+        # Pet care responses (COMMENTED OUT - Using AI responses only)
+        # self.pet_responses = [
+        #     {
+        #         "response": "🐾 That's a great question about pet care! For the best advice tailored to your pet's specific needs, I recommend consulting with a qualified veterinarian. They can provide personalized guidance based on your pet's breed, age, health status, and individual requirements.",
+        #         "type": "general_advice"
+        #     },
+        #     {
+        #         "response": "🥗 Pet nutrition is crucial for your furry friend's health! Choose high-quality food appropriate for your pet's age, size, and activity level. Always transition to new foods gradually over 7-10 days, and consult your veterinarian before making significant dietary changes.",
+        #         "type": "nutrition"
+        #     },
+        #     {
+        #         "response": "🏃‍♂️ Regular exercise is essential for your pet's physical and mental well-being! Dogs typically need 30 minutes to 2 hours of activity daily depending on their breed and age, while cats benefit from 10-15 minutes of interactive play sessions multiple times a day.",
+        #         "type": "exercise"
+        #     },
+        #     {
+        #         "response": "✂️ Pet grooming is vital for health and hygiene! Regular brushing prevents matting and reduces shedding, nail trimming prevents overgrowth and injury, and dental care prevents periodontal disease. Establish a routine early to make grooming a positive experience.",
+        #         "type": "grooming"
+        #     },
+        #     {
+        #         "response": "🏥 If you notice any changes in your pet's behavior, appetite, energy levels, or bathroom habits, it's important to schedule a veterinary visit. Early detection and treatment of health issues can prevent more serious problems and ensure your pet's well-being.",
+        #         "type": "health_monitoring"
+        #     },
+        #     {
+        #         "response": "🎓 Pet training requires patience, consistency, and positive reinforcement! Reward good behavior with treats, praise, or playtime. Keep training sessions short (5-10 minutes) and frequent. Remember, every pet learns at their own pace.",
+        #         "type": "training"
+        #     },
+        #     {
+        #         "response": "🏠 Creating a safe environment for your pet includes pet-proofing your home, providing comfortable sleeping areas, ensuring access to fresh water, and maintaining appropriate temperature. Remove toxic plants, secure hazardous items, and create designated spaces for eating and resting.",
+        #         "type": "environment"
+        #     },
+        #     {
+        #         "response": "💉 Vaccinations and regular check-ups are fundamental for preventing diseases and maintaining your pet's health. Follow your veterinarian's recommended vaccination schedule, and don't skip annual or bi-annual wellness exams even if your pet seems healthy.",
+        #         "type": "preventive_care"
+        #     },
+        #     {
+        #         "response": "🧸 Mental stimulation is just as important as physical exercise! Provide puzzle toys, rotate toys regularly, teach new tricks, and engage in interactive play. Mental enrichment prevents boredom-related behavioral issues and keeps your pet's mind sharp.",
+        #         "type": "mental_stimulation"
+        #     },
+        #     {
+        #         "response": "👥 Proper socialization helps your pet become well-adjusted and confident. Expose them to different people, animals, environments, and experiences in a controlled, positive manner. Start early, but remember that socialization is a lifelong process.",
+        #         "type": "socialization"
+        #     }
+        # ]
         
-        # Non-pet related responses
-        self.non_pet_responses = [
-            "🐾 I'm RoshanGPT, your dedicated Pet Care Assistant! I'm specifically designed to help with pet-related questions and concerns. Please ask me about pet care, health, nutrition, training, or any other pet-related topics, and I'll be happy to assist you!",
-            "🐕 I specialize exclusively in pet care and animal-related topics! Whether you have questions about dog training, cat nutrition, pet health, grooming tips, or any other pet care concerns, I'm here to help. What would you like to know about your furry, feathered, or scaled friends?",
-            "🐱 As your Pet Care Assistant, I focus on providing helpful information about pets and animals. I can assist with questions about pet behavior, health, nutrition, training, grooming, and general pet care. Please feel free to ask me anything related to your beloved pets!",
-            "🦮 I'm designed to be your go-to resource for all things pet-related! From puppy training tips to senior pet care, from choosing the right food to understanding pet behavior - I'm here to help with your pet care journey. What pet-related question can I answer for you today?",
-            "🐾 My expertise lies in pet care and animal welfare! I can provide guidance on pet health, nutrition, training, grooming, behavior, and much more. Please ask me about your pets, and I'll do my best to provide helpful, informative responses tailored to your pet care needs."
-        ]
+        # Non-pet related responses (COMMENTED OUT - Using AI responses only)
+        # self.non_pet_responses = [
+        #     "🐾 I'm RoshanGPT, your dedicated Pet Care Assistant! I'm specifically designed to help with pet-related questions and concerns. Please ask me about pet care, health, nutrition, training, or any other pet-related topics, and I'll be happy to assist you!",
+        #     "🐕 I specialize exclusively in pet care and animal-related topics! Whether you have questions about dog training, cat nutrition, pet health, grooming tips, or any other pet care concerns, I'm here to help. What would you like to know about your furry, feathered, or scaled friends?",
+        #     "🐱 As your Pet Care Assistant, I focus on providing helpful information about pets and animals. I can assist with questions about pet behavior, health, nutrition, training, grooming, and general pet care. Please feel free to ask me anything related to your beloved pets!",
+        #     "🦮 I'm designed to be your go-to resource for all things pet-related! From puppy training tips to senior pet care, from choosing the right food to understanding pet behavior - I'm here to help with your pet care journey. What pet-related question can I answer for you today?",
+        #     "🐾 My expertise lies in pet care and animal welfare! I can provide guidance on pet health, nutrition, training, grooming, behavior, and much more. Please ask me about your pets, and I'll do my best to provide helpful, informative responses tailored to your pet care needs."
+        # ]
 
     def calculate_pet_relevance_score(self, message: str) -> float:
         """Calculate how pet-related a message is (0.0 to 1.0)"""
@@ -207,15 +207,13 @@ Provide a helpful response:""".format(message)
         except Exception as e:
             logger.error(f"❌ Error calling Gemini API: {str(e)}")
         
-        # Fallback to predefined responses if API fails
-        response_data = random.choice(self.pet_responses)
+        # Fallback response if API fails (no predefined responses)
         return {
-            "response": response_data["response"],
+            "response": "🔧 I'm currently experiencing technical difficulties with my AI system. Please try again in a moment, or consult with a qualified veterinarian for immediate pet care concerns. I apologize for the inconvenience!",
             "is_pet_related": True,
-            "confidence": 0.9,
-            "message_type": "pet_advice",
-            "category": response_data["type"],
-            "source": "fallback"
+            "confidence": 0.5,
+            "message_type": "error",
+            "source": "fallback_error"
         }
 
     def generate_non_pet_response(self, message: str = "") -> Dict[str, Any]:
@@ -245,14 +243,13 @@ Response:"""
         except Exception as e:
             logger.error(f"❌ Error generating redirect response: {str(e)}")
         
-        # Fallback to predefined responses
-        response = random.choice(self.non_pet_responses)
+        # Fallback response if API fails (no predefined responses)
         return {
-            "response": response,
+            "response": "🔧 I'm currently experiencing technical difficulties with my AI system. I'm RoshanGPT, your Pet Care Assistant, and I specialize in pet-related questions. Please try asking about pet care topics, or try again later. I apologize for the inconvenience!",
             "is_pet_related": False,
-            "confidence": 0.95,
-            "message_type": "non_pet_redirect",
-            "source": "fallback"
+            "confidence": 0.5,
+            "message_type": "error",
+            "source": "fallback_error"
         }
 
     def process_message(self, message: str) -> Dict[str, Any]:

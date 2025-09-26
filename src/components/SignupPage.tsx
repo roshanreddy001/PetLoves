@@ -69,18 +69,27 @@ const SignupPage: React.FC<SignupPageProps> = ({ onBack, onShowLogin }) => {
       console.log('📝 Registration result:', result);
       
       if (result.success) {
-        console.log('✅ Registration successful');
+        console.log('✅ Registration successful:', result.data);
         setLoading(false);
         setSuccess(true);
+        
+        // Clear form fields
+        setName('');
+        setEmail('');
+        setPhone('');
+        setPassword('');
+        setConfirmPassword('');
+        
+        // Show success message for longer and redirect to login
         setTimeout(() => {
           setSuccess(false);
           onShowLogin();
-        }, 1800);
+        }, 3000); // Increased to 3 seconds for better visibility
       } else {
         console.log('❌ Registration failed:', result.error, 'Status:', result.status);
         if (result.status === 409) {
           setError('This email is already registered. Please use a different email or try logging in.');
-        } else if (result.error && result.error.includes('already registered')) {
+        } else if (result.error && (result.error.includes('already registered') || result.error.includes('Email already registered'))) {
           setError('This email is already registered. Please use a different email or try logging in.');
         } else {
           setError(result.error || 'Registration failed. Please try again.');
@@ -94,6 +103,8 @@ const SignupPage: React.FC<SignupPageProps> = ({ onBack, onShowLogin }) => {
           setError('Request timed out. Please check your connection and try again.');
         } else if (err instanceof TypeError && err.message.includes('fetch')) {
           setError('Unable to connect to server. Please check your internet connection and try again.');
+        } else if (err.message.includes('Failed to fetch')) {
+          setError('Network error. Please check your internet connection and try again.');
         } else {
           setError('Network error. Please try again later.');
         }
@@ -120,9 +131,14 @@ const SignupPage: React.FC<SignupPageProps> = ({ onBack, onShowLogin }) => {
 
         {/* Success Message */}
         {success && (
-          <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded text-sm text-green-700 flex items-center">
-            <CheckCircle className="w-4 h-4 mr-2" />
-            User registered successfully
+          <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg text-sm text-green-700">
+            <div className="flex items-center mb-2">
+              <CheckCircle className="w-5 h-5 mr-2 text-green-600" />
+              <span className="font-semibold text-green-800">Account Created Successfully!</span>
+            </div>
+            <p className="text-green-600 text-xs">
+              Your account has been created. Redirecting to login page in a few seconds...
+            </p>
           </div>
         )}
         {/* Error Message */}
@@ -249,9 +265,21 @@ const SignupPage: React.FC<SignupPageProps> = ({ onBack, onShowLogin }) => {
           <button
             type="submit"
             disabled={loading || success}
-            className="w-full bg-orange-500 text-white py-2 px-4 rounded hover:bg-orange-600 disabled:opacity-50"
+            className="w-full bg-orange-500 text-white py-2 px-4 rounded hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
           >
-            {loading ? 'Creating Account...' : 'Sign Up'}
+            {loading ? (
+              <div className="flex items-center justify-center">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                Creating Account...
+              </div>
+            ) : success ? (
+              <div className="flex items-center justify-center">
+                <CheckCircle className="w-4 h-4 mr-2" />
+                Account Created!
+              </div>
+            ) : (
+              'Sign Up'
+            )}
           </button>
         </form>
 
