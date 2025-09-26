@@ -122,7 +122,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onBack, onShowLogin }) => {
         {success && (
           <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded text-sm text-green-700 flex items-center">
             <CheckCircle className="w-4 h-4 mr-2" />
-            Registration successful! Redirecting to login...
+            User registered successfully
           </div>
         )}
         {/* Error Message */}

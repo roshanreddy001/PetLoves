@@ -44,9 +44,11 @@ const handleApiResponse = async <T>(response: Response): Promise<ApiResponse<T>>
         status: response.status,
       };
     } else {
+      // FastAPI returns errors in 'detail' field, but also check other common fields
+      const errorMessage = data.detail || data.error || data.message || 'An error occurred';
       return {
         success: false,
-        error: data.error || data.message || 'An error occurred',
+        error: errorMessage,
         status: response.status,
       };
     }
