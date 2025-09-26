@@ -33,11 +33,11 @@ class RoshanGPTService:
         self.google_api_key = os.getenv('GOOGLE_API_KEY')
         if self.google_api_key:
             genai.configure(api_key=self.google_api_key)
-            self.model = genai.GenerativeModel('gemini-pro')
-            logger.info("🤖 Google Gemini API initialized successfully")
+            self.model = genai.GenerativeModel('gemini-2.0-flash')
+            logger.info("Google Gemini API initialized successfully")
         else:
             self.model = None
-            logger.warning("⚠️ Google API key not found. Using fallback responses.")
+            logger.warning("Google API key not found. Using fallback responses.")
         # Comprehensive pet-related keywords and phrases
         self.pet_keywords = [
             # Animals
@@ -202,10 +202,10 @@ Provide a helpful response:""".format(message)
                         "source": "gemini_ai"
                     }
                 else:
-                    logger.warning("⚠️ Empty response from Gemini API, using fallback")
+                    logger.warning("Empty response from Gemini API, using fallback")
                     
         except Exception as e:
-            logger.error(f"❌ Error calling Gemini API: {str(e)}")
+            logger.error(f"Error calling Gemini API: {str(e)}")
         
         # Fallback response if API fails (no predefined responses)
         return {
@@ -241,7 +241,7 @@ Response:"""
                         "source": "gemini_ai"
                     }
         except Exception as e:
-            logger.error(f"❌ Error generating redirect response: {str(e)}")
+            logger.error(f"Error generating redirect response: {str(e)}")
         
         # Fallback response if API fails (no predefined responses)
         return {
@@ -257,7 +257,7 @@ Response:"""
         try:
             is_pet, confidence = self.is_pet_related(message)
             
-            logger.info(f"🤖 Processing message: '{message[:50]}...' | Pet-related: {is_pet} | Confidence: {confidence:.2f}")
+            logger.info(f"Processing message: '{message[:50]}...' | Pet-related: {is_pet} | Confidence: {confidence:.2f}")
             
             if is_pet:
                 return self.generate_pet_response(message)
@@ -265,7 +265,7 @@ Response:"""
                 return self.generate_non_pet_response(message)
                 
         except Exception as e:
-            logger.error(f"❌ Error processing message: {str(e)}")
+            logger.error(f"Error processing message: {str(e)}")
             return {
                 "response": "I apologize, but I'm experiencing some technical difficulties. Please try again in a moment, or consult with a veterinarian for immediate pet care concerns.",
                 "is_pet_related": False,
@@ -302,7 +302,7 @@ async def chat_with_roshan_gpt(request: ChatRequest):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ Unexpected error in chat endpoint: {str(e)}")
+        logger.error(f"Unexpected error in chat endpoint: {str(e)}")
         raise HTTPException(
             status_code=500, 
             detail="Internal server error. Please try again later."
@@ -312,7 +312,7 @@ async def chat_with_roshan_gpt(request: ChatRequest):
 async def health_check():
     """Health check endpoint for RoshanGPT service"""
     api_status = "configured" if roshan_gpt_service.google_api_key else "not_configured"
-    ai_model = "Google Gemini Pro" if roshan_gpt_service.model else "Fallback Responses"
+    ai_model = "gemini-2.0-flash" if roshan_gpt_service.model else "Fallback Responses"
     
     return {
         "status": "healthy",

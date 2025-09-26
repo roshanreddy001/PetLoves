@@ -25,25 +25,25 @@ async def debug_middleware(request: Request, call_next):
     start_time = time.time()
     
     # Log request details
-    print("\n🚨 DETAILED REQUEST DEBUG:")
-    print(f"⏰ Request Time: {datetime.now().isoformat()}")
-    print(f"🔧 Method: {request.method}")
-    print(f"📍 Full URL: {request.url}")
-    print(f"🖥️ Client IP: {request.client.host if request.client else 'Unknown'}")
+    print("\nDETAILED REQUEST DEBUG:")
+    print(f"Request Time: {datetime.now().isoformat()}")
+    print(f"Method: {request.method}")
+    print(f"Full URL: {request.url}")
+    print(f"Client IP: {request.client.host if request.client else 'Unknown'}")
     
     # Headers analysis
-    print("\n📋 REQUEST HEADERS:")
+    print("\nREQUEST HEADERS:")
     for key, value in request.headers.items():
         print(f"   {key}: {value}")
     
     # Query parameters
     if request.query_params:
-        print("\n🔍 QUERY PARAMETERS:")
+        print("\nQUERY PARAMETERS:")
         for key, value in request.query_params.items():
             print(f"   {key}: {value}")
     
     # Body analysis
-    print("\n📦 REQUEST BODY:")
+    print("\nREQUEST BODY:")
     try:
         # Read the body
         body = await request.body()
@@ -72,7 +72,7 @@ async def debug_middleware(request: Request, call_next):
         end_time = time.time()
         response_time = (end_time - start_time) * 1000  # Convert to milliseconds
         
-        print("\n📤 RESPONSE DEBUG:")
+        print("\nRESPONSE DEBUG:")
         print(f"   Status Code: {response.status_code}")
         print(f"   Response Time: {response_time:.2f}ms")
         print(f"   Response Headers: {dict(response.headers)}")
@@ -86,7 +86,7 @@ async def debug_middleware(request: Request, call_next):
         end_time = time.time()
         response_time = (end_time - start_time) * 1000
         
-        print("\n❌ REQUEST FAILED:")
+        print("\nREQUEST FAILED:")
         print(f"   Error: {str(e)}")
         print(f"   Error Type: {type(e).__name__}")
         print(f"   Response Time: {response_time:.2f}ms")
@@ -113,9 +113,9 @@ async def lifespan(app: FastAPI):
     # Test the connection
     try:
         await app.mongodb_client.admin.command('ping')
-        print("✅ Connected to MongoDB successfully!")
+        print("Connected to MongoDB successfully!")
     except Exception as e:
-        print(f"❌ Failed to connect to MongoDB: {e}")
+        print(f"Failed to connect to MongoDB: {e}")
         
     app.mongodb = app.mongodb_client.petlove
     yield
