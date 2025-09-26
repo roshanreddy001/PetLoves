@@ -68,7 +68,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onBack, onShowLogin }) => {
       
       console.log('📝 Registration result:', result);
       
-      if (result.success) {
+      if (result.success && result.data) {
         console.log('✅ Registration successful:', result.data);
         setLoading(false);
         setSuccess(true);
@@ -84,7 +84,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onBack, onShowLogin }) => {
         setTimeout(() => {
           setSuccess(false);
           onShowLogin();
-        }, 3000); // Increased to 3 seconds for better visibility
+        }, 3000);
       } else {
         console.log('❌ Registration failed:', result.error, 'Status:', result.status);
         if (result.status === 409) {
