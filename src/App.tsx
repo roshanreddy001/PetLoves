@@ -62,9 +62,6 @@ const MainApp: React.FC = () => {
             onShowLogin={() => setCurrentPage('login')}
           />
         )}
-        
-        {/* RoshanGPT Chatbot - Available on all pages */}
-        <RoshanGPT />
       </div>
     );
   }

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, Maximize2, Minimize2, Send, Bot, User } from 'lucide-react';
 import { api, API_ENDPOINTS } from '../config/api';
+import { FormattedText } from '../utils/textFormatter';
 
 interface Message {
   id: string;
@@ -19,7 +20,28 @@ const RoshanGPT: React.FC<RoshanGPTProps> = ({ className = '' }) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: '🐾 Hello! I\'m RoshanGPT, your dedicated Pet Care Assistant. I\'m here to help you with all your pet-related questions - from health and nutrition to training and behavior. Please ask me anything about your furry, feathered, or scaled friends!',
+      text: `# 🐾 Welcome to RoshanGPT!
+
+Hello! I'm **RoshanGPT**, your dedicated *Pet Care Assistant*. I'm designed to provide comprehensive, well-formatted responses just like ChatGPT!
+
+## 🎯 What I can help you with:
+
+- **🏥 Health & Nutrition** - Diet plans, feeding schedules, nutritional needs
+- **🎓 Training & Behavior** - Obedience training, behavioral issues, socialization  
+- **✂️ Grooming & Care** - Bathing, brushing, nail care, dental hygiene
+- **🩺 Medical Guidance** - Symptoms, preventive care, when to see a vet
+- **🐕 Breed Information** - Specific breed characteristics and care requirements
+
+> **⚠️ Important:** For serious health concerns, always consult with a qualified veterinarian.
+
+## 💬 How to interact with me:
+
+You can ask questions like:
+- *"How often should I feed my puppy?"*
+- *"What are signs of illness in cats?"*
+- *"Best training methods for aggressive dogs?"*
+
+*Feel free to ask me anything about your furry, feathered, or scaled companions!* I'll provide detailed, professionally formatted responses to help you give your pets the best care possible. 🐕🐱🐦`,
       sender: 'bot',
       timestamp: new Date()
     }
@@ -207,7 +229,9 @@ const RoshanGPT: React.FC<RoshanGPTProps> = ({ className = '' }) => {
                   <User className="w-4 h-4 mt-1 text-white" />
                 )}
                 <div className="flex-1">
-                  <p className="text-sm">{message.text}</p>
+                  <div className="text-sm">
+                    <FormattedText text={message.text} />
+                  </div>
                   <p className={`text-xs mt-1 ${
                     message.sender === 'user' ? 'text-white/70' : 'text-gray-500'
                   }`}>

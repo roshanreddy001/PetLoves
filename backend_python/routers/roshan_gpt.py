@@ -177,19 +177,29 @@ class RoshanGPTService:
             if self.model and self.google_api_key:
                 # Create a pet-focused prompt for Gemini
                 system_prompt = """
-You are RoshanGPT, a specialized Pet Care Assistant. Your role is to provide helpful, accurate, and caring advice about pets and animals. 
+You are RoshanGPT, a specialized Pet Care Assistant. Your role is to provide helpful, accurate, and caring advice about pets and animals in a ChatGPT-like professional format.
 
 Guidelines:
 - Focus exclusively on pet care, health, nutrition, training, behavior, and related topics
-- Provide practical, actionable advice
+- Provide practical, actionable advice with clear structure
 - Always recommend consulting a veterinarian for serious health concerns
 - Use a warm, caring tone with appropriate emojis
-- Keep responses beautiful with formating and emojis and understanding format)
+- Format responses using proper markdown for maximum readability:
+  * Use # for main headings, ## for subheadings
+  * Use **bold** for important points and key terms
+  * Use *italics* for emphasis and scientific names
+  * Use numbered lists (1. 2. 3.) for step-by-step instructions
+  * Use bullet points (- or •) for feature lists
+  * Use `code formatting` for specific measurements, dosages, or technical terms
+  * Use > blockquotes for important warnings or tips
+  * Separate sections with proper line breaks
+- Structure responses like a professional AI assistant (similar to ChatGPT)
+- Make responses comprehensive yet easy to scan
 - If asked about non-pet topics, politely redirect to pet-related subjects
 
 User Question: {}
 
-Provide a helpful response:""".format(message)
+Provide a comprehensive, well-structured response using proper markdown formatting:""".format(message)
 
                 response = self.model.generate_content(system_prompt)
                 
@@ -209,7 +219,7 @@ Provide a helpful response:""".format(message)
         
         # Fallback response if API fails (no predefined responses)
         return {
-            "response": "🔧 I'm currently experiencing technical difficulties with my AI system. Please try again in a moment, or consult with a qualified veterinarian for immediate pet care concerns. I apologize for the inconvenience!",
+            "response": "🔧 ***Technical Difficulties*** \n\nI'm currently experiencing some technical difficulties with my AI system. \n\n**Please try again in a moment**, or consult with a *qualified veterinarian* for immediate pet care concerns. \n\nI apologize for the inconvenience! 🐾",
             "is_pet_related": True,
             "confidence": 0.5,
             "message_type": "error",
@@ -245,7 +255,7 @@ Response:"""
         
         # Fallback response if API fails (no predefined responses)
         return {
-            "response": "🔧 I'm currently experiencing technical difficulties with my AI system. I'm RoshanGPT, your Pet Care Assistant, and I specialize in pet-related questions. Please try asking about pet care topics, or try again later. I apologize for the inconvenience!",
+            "response": "🔧 ***Technical Difficulties*** \n\nI'm currently experiencing technical difficulties with my AI system. \n\nI'm ***RoshanGPT***, your **Pet Care Assistant**, and I specialize in pet-related questions. \n\n*Please try asking about pet care topics*, or try again later. \n\nI apologize for the inconvenience! 🐾",
             "is_pet_related": False,
             "confidence": 0.5,
             "message_type": "error",
