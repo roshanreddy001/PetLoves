@@ -26,7 +26,6 @@ export const formatText = (text: string): React.ReactNode[] => {
   const formattedLines: React.ReactNode[] = [];
   let inCodeBlock = false;
   let codeBlockContent: string[] = [];
-  let codeBlockLang = '';
 
   for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
     const line = lines[lineIndex];
@@ -44,11 +43,9 @@ export const formatText = (text: string): React.ReactNode[] => {
         );
         codeBlockContent = [];
         inCodeBlock = false;
-        codeBlockLang = '';
       } else {
         // Start code block
         inCodeBlock = true;
-        codeBlockLang = line.trim().slice(3).trim();
       }
       continue;
     }
