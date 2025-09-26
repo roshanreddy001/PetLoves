@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react';
 import { userService } from '../services/apiService';
+import { validateGmailEmail, normalizeGmailEmail } from '../utils/emailValidation';
 
 interface SignupPageProps {
   onBack: () => void;
@@ -32,6 +33,14 @@ const SignupPage: React.FC<SignupPageProps> = ({ onBack, onShowLogin }) => {
       return;
     }
 
+    // Validate Gmail email
+    const emailValidation = validateGmailEmail(email);
+    if (!emailValidation.isValid) {
+      setError(emailValidation.error || 'Invalid email format');
+      setLoading(false);
+      return;
+    }
+
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       setLoading(false);
@@ -45,14 +54,22 @@ const SignupPage: React.FC<SignupPageProps> = ({ onBack, onShowLogin }) => {
     }
 
     try {
+      // Normalize email before sending to backend
+      const normalizedEmail = normalizeGmailEmail(email);
+      
+      console.log('🔐 Attempting registration for:', normalizedEmail);
+      
       const result = await userService.register({
-        name,
-        email,
-        phone,
+        name: name.trim(),
+        email: normalizedEmail,
+        phone: phone.trim(),
         password
       });
       
+      console.log('📝 Registration result:', result);
+      
       if (result.success) {
+        console.log('✅ Registration successful');
         setLoading(false);
         setSuccess(true);
         setTimeout(() => {
@@ -60,15 +77,18 @@ const SignupPage: React.FC<SignupPageProps> = ({ onBack, onShowLogin }) => {
           onShowLogin();
         }, 1800);
       } else {
+        console.log('❌ Registration failed:', result.error, 'Status:', result.status);
         if (result.status === 409) {
-          setError('Email already registered');
+          setError('This email is already registered. Please use a different email or try logging in.');
+        } else if (result.error && result.error.includes('already registered')) {
+          setError('This email is already registered. Please use a different email or try logging in.');
         } else {
-          setError(result.error || 'Signup failed');
+          setError(result.error || 'Registration failed. Please try again.');
         }
         setLoading(false);
       }
     } catch (err) {
-      console.error('Signup error:', err);
+      console.error('💥 Signup error:', err);
       if (err instanceof Error) {
         if (err.name === 'AbortError') {
           setError('Request timed out. Please check your connection and try again.');
@@ -138,10 +158,13 @@ const SignupPage: React.FC<SignupPageProps> = ({ onBack, onShowLogin }) => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-orange-500"
-              placeholder="Enter email"
+              placeholder="Enter Gmail address (xyz@gmail.com)"
               required
               disabled={success}
             />
+            <p className="mt-1 text-xs text-gray-500">
+              Only Gmail accounts are accepted (e.g., yourname@gmail.com)
+            </p>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">

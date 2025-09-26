@@ -14,16 +14,32 @@ async def get_all_users(request: Request):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@router.get("/debug/emails")
+async def debug_emails(request: Request):
+    """Debug endpoint to check existing emails"""
+    try:
+        users = await request.app.mongodb["users"].find({}, {"email": 1, "name": 1}).to_list(1000)
+        emails = [{"email": user.get("email", "N/A"), "name": user.get("name", "N/A")} for user in users]
+        print(f"📧 Found {len(emails)} users in database:")
+        for user_info in emails:
+            print(f"   - {user_info['email']} ({user_info['name']})")
+        return {"total_users": len(emails), "emails": emails}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @router.post("/", response_model=User, status_code=201)
 async def register_user(user: UserCreate, request: Request):
     """Register new user"""
     try:
-        print(f"🔐 REGISTRATION ATTEMPT: {user.email}")
+        # Normalize email to lowercase to prevent case-sensitive duplicates
+        normalized_email = user.email.lower().strip()
+        print(f"🔐 REGISTRATION ATTEMPT: {normalized_email} (original: {user.email})")
         
-        # Check for duplicate email
-        existing_user = await request.app.mongodb["users"].find_one({"email": user.email})
+        # Check for duplicate email (case-insensitive)
+        existing_user = await request.app.mongodb["users"].find_one({"email": {"$regex": f"^{normalized_email}$", "$options": "i"}})
         if existing_user:
-            print(f"❌ Email already exists: {user.email}")
+            print(f"❌ Email already exists: {normalized_email}")
+            print(f"📧 Existing user email: {existing_user.get('email', 'N/A')}")
             raise HTTPException(status_code=409, detail="Email already registered")
         
         # Hash the password
@@ -31,13 +47,14 @@ async def register_user(user: UserCreate, request: Request):
         hashed_password = bcrypt.hashpw(user.password.encode('utf-8'), bcrypt.gensalt())
         
         user_dict = user.dict()
+        user_dict["email"] = normalized_email  # Store normalized email
         user_dict["password"] = hashed_password.decode('utf-8')  # Store as string
         
         print("💾 Saving user to database...")
         result = await request.app.mongodb["users"].insert_one(user_dict)
         created_user = await request.app.mongodb["users"].find_one({"_id": result.inserted_id})
         
-        print(f"✅ User registered successfully: {user.email}")
+        print(f"✅ User registered successfully: {normalized_email}")
         return created_user
     except HTTPException:
         raise
@@ -49,12 +66,15 @@ async def register_user(user: UserCreate, request: Request):
 async def register_user_alt(user: UserCreate, request: Request):
     """Register new user (alternative endpoint)"""
     try:
-        print(f"🔐 REGISTRATION ATTEMPT (ALT): {user.email}")
+        # Normalize email to lowercase to prevent case-sensitive duplicates
+        normalized_email = user.email.lower().strip()
+        print(f"🔐 REGISTRATION ATTEMPT (ALT): {normalized_email} (original: {user.email})")
         
-        # Check for duplicate email
-        existing_user = await request.app.mongodb["users"].find_one({"email": user.email})
+        # Check for duplicate email (case-insensitive)
+        existing_user = await request.app.mongodb["users"].find_one({"email": {"$regex": f"^{normalized_email}$", "$options": "i"}})
         if existing_user:
-            print(f"❌ Email already exists: {user.email}")
+            print(f"❌ Email already exists: {normalized_email}")
+            print(f"📧 Existing user email: {existing_user.get('email', 'N/A')}")
             raise HTTPException(status_code=409, detail="Email already registered")
         
         # Hash the password
@@ -62,13 +82,14 @@ async def register_user_alt(user: UserCreate, request: Request):
         hashed_password = bcrypt.hashpw(user.password.encode('utf-8'), bcrypt.gensalt())
         
         user_dict = user.dict()
+        user_dict["email"] = normalized_email  # Store normalized email
         user_dict["password"] = hashed_password.decode('utf-8')  # Store as string
         
         print("💾 Saving user to database...")
         result = await request.app.mongodb["users"].insert_one(user_dict)
         created_user = await request.app.mongodb["users"].find_one({"_id": result.inserted_id})
         
-        print(f"✅ User registered successfully: {user.email}")
+        print(f"✅ User registered successfully: {normalized_email}")
         return created_user
     except HTTPException:
         raise
@@ -82,11 +103,12 @@ async def login_user(login_data: UserLogin, request: Request):
     print('🔐 LOGIN ATTEMPT:', login_data.dict())
     
     try:
-        email = login_data.email
+        # Normalize email for consistent lookup
+        email = login_data.email.lower().strip()
         password = login_data.password
         
         print('📧 Looking for user:', email)
-        user = await request.app.mongodb["users"].find_one({"email": email})
+        user = await request.app.mongodb["users"].find_one({"email": {"$regex": f"^{email}$", "$options": "i"}})
         print('👤 User found:', bool(user))
         
         if not user:

@@ -71,6 +71,12 @@ export const API_ENDPOINTS = {
     BASE: '/api/clinics',
     BY_ID: (clinicId: string) => `/api/clinics/${clinicId}`,
   },
+  
+  // RoshanGPT endpoints
+  ROSHAN_GPT: {
+    CHAT: '/api/roshan-gpt/chat',
+    HEALTH: '/api/roshan-gpt/health',
+  },
 } as const;
 
 // Utility function to build full API URLs

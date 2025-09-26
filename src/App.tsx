@@ -16,6 +16,7 @@ import { ShoppingCart as CartIcon, Sparkles } from 'lucide-react';
 import { useApp } from './context/AppContext';
 import OrdersPage from './components/OrdersPage';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import RoshanGPT from './components/RoshanGPT';
 
 type Page = 'landing' | 'login' | 'signup' | 'home' | 'orders' | 'about' | 'medicare' | 'food' | 'accessories';
 type PageOrNull = Page | null;
@@ -61,6 +62,9 @@ const MainApp: React.FC = () => {
             onShowLogin={() => setCurrentPage('login')}
           />
         )}
+        
+        {/* RoshanGPT Chatbot - Available on all pages */}
+        <RoshanGPT />
       </div>
     );
   }
@@ -136,6 +140,9 @@ const MainApp: React.FC = () => {
       </div>
 
       <ShoppingCart isOpen={showCart} onClose={() => setShowCart(false)} />
+      
+      {/* RoshanGPT Chatbot - Available on all authenticated pages */}
+      <RoshanGPT />
     </div>
   );
 };

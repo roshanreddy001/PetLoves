@@ -8,7 +8,7 @@ import json
 from datetime import datetime
 from dotenv import load_dotenv
 
-from routers import users, pets, orders, adoptions, appointments, visits
+from routers import users, pets, orders, adoptions, appointments, visits, roshan_gpt
 from static_server import setup_static_files
 
 # Load environment variables
@@ -150,6 +150,7 @@ app.include_router(orders.router, prefix="/api/orders", tags=["orders"])
 app.include_router(adoptions.router, prefix="/api/adoptions", tags=["adoptions"])
 app.include_router(appointments.router, prefix="/api/appointments", tags=["appointments"])
 app.include_router(visits.router, prefix="/api/visits", tags=["visits"])
+app.include_router(roshan_gpt.router, tags=["roshan-gpt"])
 
 @app.get("/api")
 async def root():

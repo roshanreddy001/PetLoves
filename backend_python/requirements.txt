@@ -7,3 +7,6 @@ motor
 python-dotenv
 python-multipart
 bcrypt
+nltk
+textblob
+scikit-learn

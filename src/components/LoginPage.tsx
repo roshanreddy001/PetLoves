@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { userService } from '../services/apiService';
+import { validateGmailEmail, normalizeGmailEmail } from '../utils/emailValidation';
 
 interface LoginPageProps {
   onBack: () => void;
@@ -30,8 +31,18 @@ const LoginPage: React.FC<LoginPageProps> = ({ onBack, onShowSignup, onLoginSucc
       return;
     }
 
+    // Validate Gmail email
+    const emailValidation = validateGmailEmail(email);
+    if (!emailValidation.isValid) {
+      setError(emailValidation.error || 'Invalid email format');
+      setLoading(false);
+      return;
+    }
+
     try {
-      const result = await userService.login({ email, password });
+      // Normalize email before sending to backend
+      const normalizedEmail = normalizeGmailEmail(email);
+      const result = await userService.login({ email: normalizedEmail, password });
       
       if (result.success && result.data) {
         // Convert ApiUser to User format expected by AuthContext
@@ -89,9 +100,12 @@ const LoginPage: React.FC<LoginPageProps> = ({ onBack, onShowSignup, onLoginSucc
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-orange-500"
-              placeholder="Enter email"
+              placeholder="Enter Gmail address (xyz@gmail.com)"
               required
             />
+            <p className="mt-1 text-xs text-gray-500">
+              Only Gmail accounts are accepted (e.g., yourname@gmail.com)
+            </p>
           </div>
 
           <div>
