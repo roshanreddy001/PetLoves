@@ -4,6 +4,12 @@ import re
 import random
 from typing import List, Dict, Any
 import logging
+import os
+import google.generativeai as genai
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -23,6 +29,15 @@ class ChatResponse(BaseModel):
 
 class RoshanGPTService:
     def __init__(self):
+        # Initialize Google Gemini API
+        self.google_api_key = os.getenv('GOOGLE_API_KEY')
+        if self.google_api_key:
+            genai.configure(api_key=self.google_api_key)
+            self.model = genai.GenerativeModel('gemini-pro')
+            logger.info("🤖 Google Gemini API initialized successfully")
+        else:
+            self.model = None
+            logger.warning("⚠️ Google API key not found. Using fallback responses.")
         # Comprehensive pet-related keywords and phrases
         self.pet_keywords = [
             # Animals
@@ -157,28 +172,87 @@ class RoshanGPTService:
         return score >= threshold, score
 
     def generate_pet_response(self, message: str) -> Dict[str, Any]:
-        """Generate a pet-related response"""
-        # For demo purposes, return a random pet response
-        # In a real implementation, you could use NLP to match the most relevant response
-        response_data = random.choice(self.pet_responses)
+        """Generate a pet-related response using Google Gemini API"""
+        try:
+            if self.model and self.google_api_key:
+                # Create a pet-focused prompt for Gemini
+                system_prompt = """
+You are RoshanGPT, a specialized Pet Care Assistant. Your role is to provide helpful, accurate, and caring advice about pets and animals. 
+
+Guidelines:
+- Focus exclusively on pet care, health, nutrition, training, behavior, and related topics
+- Provide practical, actionable advice
+- Always recommend consulting a veterinarian for serious health concerns
+- Use a warm, caring tone with appropriate emojis
+- Keep responses concise but informative (2-4 sentences)
+- If asked about non-pet topics, politely redirect to pet-related subjects
+
+User Question: {}
+
+Provide a helpful response:""".format(message)
+
+                response = self.model.generate_content(system_prompt)
+                
+                if response and response.text:
+                    return {
+                        "response": response.text.strip(),
+                        "is_pet_related": True,
+                        "confidence": 0.95,
+                        "message_type": "pet_advice",
+                        "source": "gemini_ai"
+                    }
+                else:
+                    logger.warning("⚠️ Empty response from Gemini API, using fallback")
+                    
+        except Exception as e:
+            logger.error(f"❌ Error calling Gemini API: {str(e)}")
         
+        # Fallback to predefined responses if API fails
+        response_data = random.choice(self.pet_responses)
         return {
             "response": response_data["response"],
             "is_pet_related": True,
             "confidence": 0.9,
             "message_type": "pet_advice",
-            "category": response_data["type"]
+            "category": response_data["type"],
+            "source": "fallback"
         }
 
-    def generate_non_pet_response(self) -> Dict[str, Any]:
+    def generate_non_pet_response(self, message: str = "") -> Dict[str, Any]:
         """Generate a response for non-pet-related queries"""
-        response = random.choice(self.non_pet_responses)
+        try:
+            if self.model and self.google_api_key and message:
+                # Use Gemini to create a personalized redirect response
+                redirect_prompt = f"""
+You are RoshanGPT, a Pet Care Assistant. The user asked: "{message}"
+
+This question is not related to pets or animals. Politely redirect them to ask about pet care topics instead. 
+Mention some specific pet care areas you can help with (like nutrition, training, health, grooming, behavior).
+Use a friendly tone with pet emojis. Keep it brief (1-2 sentences).
+
+Response:"""
+                
+                response = self.model.generate_content(redirect_prompt)
+                
+                if response and response.text:
+                    return {
+                        "response": response.text.strip(),
+                        "is_pet_related": False,
+                        "confidence": 0.95,
+                        "message_type": "non_pet_redirect",
+                        "source": "gemini_ai"
+                    }
+        except Exception as e:
+            logger.error(f"❌ Error generating redirect response: {str(e)}")
         
+        # Fallback to predefined responses
+        response = random.choice(self.non_pet_responses)
         return {
             "response": response,
             "is_pet_related": False,
             "confidence": 0.95,
-            "message_type": "non_pet_redirect"
+            "message_type": "non_pet_redirect",
+            "source": "fallback"
         }
 
     def process_message(self, message: str) -> Dict[str, Any]:
@@ -191,7 +265,7 @@ class RoshanGPTService:
             if is_pet:
                 return self.generate_pet_response(message)
             else:
-                return self.generate_non_pet_response()
+                return self.generate_non_pet_response(message)
                 
         except Exception as e:
             logger.error(f"❌ Error processing message: {str(e)}")
@@ -240,16 +314,22 @@ async def chat_with_roshan_gpt(request: ChatRequest):
 @router.get("/api/roshan-gpt/health")
 async def health_check():
     """Health check endpoint for RoshanGPT service"""
+    api_status = "configured" if roshan_gpt_service.google_api_key else "not_configured"
+    ai_model = "Google Gemini Pro" if roshan_gpt_service.model else "Fallback Responses"
+    
     return {
         "status": "healthy",
         "service": "RoshanGPT Pet Care Assistant",
-        "version": "1.0.0",
+        "version": "2.0.0",
+        "ai_model": ai_model,
+        "api_status": api_status,
         "capabilities": [
-            "Pet care advice",
+            "AI-powered pet care advice",
             "Pet health guidance",
-            "Pet nutrition information",
+            "Pet nutrition information", 
             "Pet training tips",
             "Pet behavior insights",
-            "Non-pet query redirection"
+            "Non-pet query redirection",
+            "Personalized responses"
         ]
     }

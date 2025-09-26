@@ -40,7 +40,7 @@ async def register_user(user: UserCreate, request: Request):
         if existing_user:
             print(f"❌ Email already exists: {normalized_email}")
             print(f"📧 Existing user email: {existing_user.get('email', 'N/A')}")
-            raise HTTPException(status_code=409, detail="Email already registered")
+            raise HTTPException(status_code=409, detail="This email is already registered. Please use a different email or try logging in.")
         
         # Hash the password
         print("🔑 Hashing password...")
@@ -75,7 +75,7 @@ async def register_user_alt(user: UserCreate, request: Request):
         if existing_user:
             print(f"❌ Email already exists: {normalized_email}")
             print(f"📧 Existing user email: {existing_user.get('email', 'N/A')}")
-            raise HTTPException(status_code=409, detail="Email already registered")
+            raise HTTPException(status_code=409, detail="This email is already registered. Please use a different email or try logging in.")
         
         # Hash the password
         print("🔑 Hashing password...")

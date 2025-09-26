@@ -10,3 +10,4 @@ bcrypt
 nltk
 textblob
 scikit-learn
+google-generativeai
