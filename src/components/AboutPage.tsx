@@ -142,7 +142,7 @@ const AboutPage: React.FC = () => {
                 <strong>Email:</strong> reddyroshan976@gmail.com
               </p>
               <p className="text-gray-600">
-                <strong>Address:</strong> begumpet, Hyderabad City, Talangana state
+                <strong>Address:</strong> Shyamal Buildings, Begumpet, Hyderabad, Telangana -16
               </p>
             </div>
           </div>
