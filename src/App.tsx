@@ -17,6 +17,7 @@ import { useApp } from './context/AppContext';
 import OrdersPage from './components/OrdersPage';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import RoshanGPT from './components/RoshanGPT';
+import Footer from './components/Footer';
 
 type Page = 'landing' | 'login' | 'signup' | 'home' | 'orders' | 'about' | 'medicare' | 'food' | 'accessories';
 type PageOrNull = Page | null;
@@ -40,28 +41,36 @@ const MainApp: React.FC = () => {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen">
-        {currentPage === 'landing' && (
-          <LandingPage
-            onShowLogin={() => setCurrentPage('login')}
-            onShowSignup={() => setCurrentPage('signup')}
-          />
-        )}
+      <div className="min-h-screen flex flex-col">
+        <div className="flex-grow">
+          {currentPage === 'landing' && (
+            <LandingPage
+              onShowLogin={() => setCurrentPage('login')}
+              onShowSignup={() => setCurrentPage('signup')}
+            />
+          )}
+          
+          {currentPage === 'login' && (
+            <LoginPage
+              onBack={() => setCurrentPage('landing')}
+              onShowSignup={() => setCurrentPage('signup')}
+              onLoginSuccess={() => { setActiveTab('home'); setCurrentPage('home'); }}
+            />
+          )}
+          
+          {currentPage === 'signup' && (
+            <SignupPage
+              onBack={() => setCurrentPage('landing')}
+              onShowLogin={() => setCurrentPage('login')}
+            />
+          )}
+        </div>
         
-        {currentPage === 'login' && (
-          <LoginPage
-            onBack={() => setCurrentPage('landing')}
-            onShowSignup={() => setCurrentPage('signup')}
-            onLoginSuccess={() => { setActiveTab('home'); setCurrentPage('home'); }}
-          />
-        )}
+        {/* Footer for non-authenticated pages */}
+        <Footer />
         
-        {currentPage === 'signup' && (
-          <SignupPage
-            onBack={() => setCurrentPage('landing')}
-            onShowLogin={() => setCurrentPage('login')}
-          />
-        )}
+        {/* RoshanGPT Chatbot - Available on all pages */}
+        <RoshanGPT />
       </div>
     );
   }
@@ -86,7 +95,7 @@ const MainApp: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-orange-50 to-pink-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-orange-50 to-pink-50 flex flex-col">
       {/* Pet-themed decorative elements */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         {/* Subtle paw prints */}
@@ -108,7 +117,7 @@ const MainApp: React.FC = () => {
       </div>
 
       {/* Main Content */}
-      <div className="relative z-10 min-h-screen">
+      <div className="relative z-10 flex-grow flex flex-col">
         <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
         
         {/* Shopping Cart Button */}
@@ -129,12 +138,17 @@ const MainApp: React.FC = () => {
           </button>
         </div>
 
-        <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
-          <div className="animate-fade-in">
-            {renderActiveTab()}
+        <main className="flex-grow">
+          <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
+            <div className="animate-fade-in">
+              {renderActiveTab()}
+            </div>
           </div>
-        </div>
+        </main>
       </div>
+
+      {/* Footer for authenticated pages */}
+      <Footer />
 
       <ShoppingCart isOpen={showCart} onClose={() => setShowCart(false)} />
       

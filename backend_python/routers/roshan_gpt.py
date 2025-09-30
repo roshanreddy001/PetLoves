@@ -33,7 +33,7 @@ class RoshanGPTService:
         self.google_api_key = os.getenv('GOOGLE_API_KEY')
         if self.google_api_key:
             genai.configure(api_key=self.google_api_key)
-            self.model = genai.GenerativeModel('gemini-2.0-flash')
+            self.model = genai.GenerativeModel('gemini-2.0-flash-lite')
             logger.info("Google Gemini API initialized successfully")
         else:
             self.model = None
